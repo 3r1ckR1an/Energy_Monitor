@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "513401596680",
+    "firebase_url": "https://tcc-e7aa4-default-rtdb.firebaseio.com",
+    "project_id": "tcc-e7aa4",
+    "storage_bucket": "tcc-e7aa4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:513401596680:android:93cfc49a1e6ee69e519abd",
+        "android_client_info": {
+          "package_name": "com.erick.tcc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "513401596680-r4sh6bpg5p91nqcqgcrfnincvqqvjd5b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5V2VeksqH7eEA_HPnvUYqyECPXnXw_2c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "513401596680-r4sh6bpg5p91nqcqgcrfnincvqqvjd5b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
