@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,7 +14,7 @@ void main() async{
 class Tcc extends StatelessWidget {
 
   final ledstateController  = TextEditingController();
-  //final offController = TextEditingController();
+  final ref = FirebaseDatabase.instance.ref("Led_Status");
 
 
   @override
@@ -46,11 +47,15 @@ class Tcc extends StatelessWidget {
               children: <Widget>[
                 ElevatedButton(
                   onPressed: () {
-                    DocumentReference docRef = FirebaseFirestore.instance.collection('led').doc('led');
-                    docRef.update({
-                      'ledstate' : ledstateController.text = 'on',
-                    }
-                    );
+                    ref.update({
+                      "Led_Status": 'on',
+                    });
+
+                    // DocumentReference docRef = FirebaseFirestore.instance.collection('led').doc('led');
+                    // docRef.update({
+                    //   'ledstate' : ledstateController.text = 'on',
+                    // }
+                    // );
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(Colors.green),
@@ -63,11 +68,9 @@ class Tcc extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    DocumentReference docRef = FirebaseFirestore.instance.collection('led').doc('led');
-                    docRef.update({
-                      'ledstate' : ledstateController.text = 'off',
-                    }
-                    );
+                    ref.update({
+                      "Led_Status": 'off',
+                    });
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(Colors.red),
