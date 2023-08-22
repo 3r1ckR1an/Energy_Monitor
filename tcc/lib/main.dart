@@ -14,7 +14,7 @@ void main() async{
 class Tcc extends StatelessWidget {
 
   final ledstateController  = TextEditingController();
-  final ref = FirebaseDatabase.instance.ref("Led_Status");
+  final ref = FirebaseDatabase.instance.ref("");
 
 
   @override
@@ -50,12 +50,6 @@ class Tcc extends StatelessWidget {
                     ref.update({
                       "Led_Status": 'on',
                     });
-
-                    // DocumentReference docRef = FirebaseFirestore.instance.collection('led').doc('led');
-                    // docRef.update({
-                    //   'ledstate' : ledstateController.text = 'on',
-                    // }
-                    // );
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(Colors.green),
