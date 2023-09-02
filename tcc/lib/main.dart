@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'main_page/boxes.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,9 +14,7 @@ void main() async{
 
 class Tcc extends StatelessWidget {
 
-  final ledstateController  = TextEditingController();
   final ref = FirebaseDatabase.instance.ref("");
-
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +33,7 @@ class Tcc extends StatelessWidget {
           children: <Widget>[
             const Center(
               child: CircleAvatar(
-                backgroundImage: AssetImage('assets/kanna.jpg'),
+                backgroundImage: AssetImage('assets/lampada.jpg'),
                 radius: 40,
               ),
             ),
@@ -70,11 +69,24 @@ class Tcc extends StatelessWidget {
                     backgroundColor: MaterialStateProperty.all(Colors.red),
                     fixedSize: MaterialStateProperty.all(Size(100,50)),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Desligar',
                      style: TextStyle(fontSize: 18),
                   ),
                 ),
+              ],
+            ),
+            const SizedBox(height: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                boxes('Tensão:', 'Valor'),
+                const SizedBox(width: 20),
+
+                boxes('Corrente:', 'Valor'),
+                const SizedBox(width: 20),
+
+                boxes('Potência:', 'Valor'),
               ],
             ),
           ],
