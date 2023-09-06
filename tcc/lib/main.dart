@@ -4,7 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'main_page/boxes.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MaterialApp(
@@ -12,9 +12,14 @@ void main() async{
   ));
 }
 
-class Tcc extends StatelessWidget {
+class Tcc extends StatefulWidget {
+  @override
+  _TccState createState() => _TccState();
+}
 
-  final ref = FirebaseDatabase.instance.ref("");
+class _TccState extends State<Tcc> {
+  final DatabaseReference ref =
+  FirebaseDatabase.instance.ref().child("");
 
   @override
   Widget build(BuildContext context) {
@@ -67,11 +72,11 @@ class Tcc extends StatelessWidget {
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(Colors.red),
-                    fixedSize: MaterialStateProperty.all(Size(100,50)),
+                    fixedSize: MaterialStateProperty.all(Size(100, 50)),
                   ),
                   child: const Text(
                     'Desligar',
-                     style: TextStyle(fontSize: 18),
+                    style: TextStyle(fontSize: 18),
                   ),
                 ),
               ],
@@ -80,13 +85,59 @@ class Tcc extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                boxes('Tensão:', 'Valor'),
+                FutureBuilder<DatabaseEvent>(
+                  future: ref.child('Tensao').child('-NdR28l6AI_aTJYFWQRk').once(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else if (!snapshot.hasData || snapshot.data == null) {
+                      return Text('No data available');
+                    } else {
+                      // You can access the DataSnapshot from the DatabaseEvent
+                      DataSnapshot dataSnapshot = snapshot.data!.snapshot;
+                      var value = dataSnapshot.value;
+                      return boxes('Tensão:', value.toString() + 'V');
+                    }
+                  },
+                ),
                 const SizedBox(width: 20),
-
-                boxes('Corrente:', 'Valor'),
+                FutureBuilder<DatabaseEvent>(
+                  future: ref.child('Corrente').child('-NdR28oZB-1vn0ZrP2G7').once(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else if (!snapshot.hasData || snapshot.data == null) {
+                      return Text('No data available');
+                    } else {
+                      // You can access the DataSnapshot from the DatabaseEvent
+                      DataSnapshot dataSnapshot = snapshot.data!.snapshot;
+                      var value = dataSnapshot.value;
+                      return boxes('Corrente:', value.toString() + 'A');
+                    }
+                  },
+                ),
                 const SizedBox(width: 20),
-
-                boxes('Potência:', 'Valor'),
+                FutureBuilder<DatabaseEvent>(
+                  future: ref.child('Potencia').child('-NdR28sburAq7HOH_6EM').once(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else if (!snapshot.hasData || snapshot.data == null) {
+                      return Text('No data available');
+                    } else {
+                      // You can access the DataSnapshot from the DatabaseEvent
+                      DataSnapshot dataSnapshot = snapshot.data!.snapshot;
+                      var value = dataSnapshot.value;
+                      return boxes('Potencia:', value.toString() + 'W');
+                    }
+                  },
+                ),
               ],
             ),
           ],
