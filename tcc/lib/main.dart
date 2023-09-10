@@ -2,7 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'main_page/boxes.dart';
+import 'main_page/functions.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -86,7 +86,7 @@ class _TccState extends State<Tcc> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 FutureBuilder<DatabaseEvent>(
-                  future: ref.child('Tensao').child('-NdR28l6AI_aTJYFWQRk').once(),
+                  future: ref.child('Power').once(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return CircularProgressIndicator();
@@ -97,47 +97,54 @@ class _TccState extends State<Tcc> {
                     } else {
                       // You can access the DataSnapshot from the DatabaseEvent
                       DataSnapshot dataSnapshot = snapshot.data!.snapshot;
+
                       var value = dataSnapshot.value;
-                      return boxes('Tensão:', value.toString() + 'V');
+
+                      String data = value.toString();
+                      Map<String, double> sortedData = sortFirebaseDataByDateTime(data);
+                      List<String> sortedKeys = sortedData.keys.toList();
+                      double? valor = getValueForKey(sortedKeys[3], sortedData);
+
+                      return boxes('Tensão:', valor.toString() + 'V');
                     }
                   },
                 ),
                 const SizedBox(width: 20),
-                FutureBuilder<DatabaseEvent>(
-                  future: ref.child('Corrente').child('-NdR28oZB-1vn0ZrP2G7').once(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else if (!snapshot.hasData || snapshot.data == null) {
-                      return Text('No data available');
-                    } else {
-                      // You can access the DataSnapshot from the DatabaseEvent
-                      DataSnapshot dataSnapshot = snapshot.data!.snapshot;
-                      var value = dataSnapshot.value;
-                      return boxes('Corrente:', value.toString() + 'A');
-                    }
-                  },
-                ),
+                // FutureBuilder<DatabaseEvent>(
+                //   future: ref.child('Corrente').child('-NdR28oZB-1vn0ZrP2G7').once(),
+                //   builder: (context, snapshot) {
+                //     if (snapshot.connectionState == ConnectionState.waiting) {
+                //       return CircularProgressIndicator();
+                //     } else if (snapshot.hasError) {
+                //       return Text('Error: ${snapshot.error}');
+                //     } else if (!snapshot.hasData || snapshot.data == null) {
+                //       return Text('No data available');
+                //     } else {
+                //       // You can access the DataSnapshot from the DatabaseEvent
+                //       DataSnapshot dataSnapshot = snapshot.data!.snapshot;
+                //       var value = dataSnapshot.value;
+                //       return boxes('Corrente:', value.toString() + 'A');
+                //     }
+                //   },
+                // ),
                 const SizedBox(width: 20),
-                FutureBuilder<DatabaseEvent>(
-                  future: ref.child('Potencia').child('-NdR28sburAq7HOH_6EM').once(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else if (!snapshot.hasData || snapshot.data == null) {
-                      return Text('No data available');
-                    } else {
-                      // You can access the DataSnapshot from the DatabaseEvent
-                      DataSnapshot dataSnapshot = snapshot.data!.snapshot;
-                      var value = dataSnapshot.value;
-                      return boxes('Potencia:', value.toString() + 'W');
-                    }
-                  },
-                ),
+                // FutureBuilder<DatabaseEvent>(
+                //   future: ref.child('Potencia').child('-NdR28sburAq7HOH_6EM').once(),
+                //   builder: (context, snapshot) {
+                //     if (snapshot.connectionState == ConnectionState.waiting) {
+                //       return CircularProgressIndicator();
+                //     } else if (snapshot.hasError) {
+                //       return Text('Error: ${snapshot.error}');
+                //     } else if (!snapshot.hasData || snapshot.data == null) {
+                //       return Text('No data available');
+                //     } else {
+                //       // You can access the DataSnapshot from the DatabaseEvent
+                //       DataSnapshot dataSnapshot = snapshot.data!.snapshot;
+                //       var value = dataSnapshot.value;
+                //       return boxes('Potencia:', value.toString() + 'W');
+                //     }
+                //   },
+                // ),
               ],
             ),
           ],
