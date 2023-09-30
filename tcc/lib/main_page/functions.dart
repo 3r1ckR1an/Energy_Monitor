@@ -39,7 +39,6 @@ Column boxes(String above, String content){
   );
 }
 
-
 Map<String, double> sortFirebaseDataByDateTime(String data) {
   Map<String, dynamic> mapData = Map<String, dynamic>.from(json.decode(data));
 
@@ -85,35 +84,73 @@ double? getValueForKey(String key, Map<String, double> sortedData) {
 }
 
 
-Column Graph() {
-  List<TimeData> data = [
-    TimeData('1', 0.05702),
-    TimeData('2', 0.29888),
-    TimeData('3', 0.2824),
-    TimeData('4', 0.29527),
-    TimeData('5', 0.28148),
-    TimeData('6', 0.27815),
-    TimeData('7', 0.27995),
-    TimeData('8', 0.31281),
-    TimeData('9', 0.103),
-    TimeData('10', 0.56864),
-    TimeData('11', 0.56569),
-    TimeData('12', 0.55749),
-    TimeData('13', 0.55534),
-    TimeData('14', 0.0445),
-    TimeData('15', 0.04738),
-  ];
+double? consumoTotal(Map<String, double> values) {
+  List<String> sortedKeys = values.keys.toList();
+  double? total = 0;
 
+  for (int i = 1; i < 16; i++) {
+    double? value = getValueForKey(sortedKeys[i - 1], values);
+    if (value != null) {
+      total = total! + value;
+    }
+  }
+  total = (total!/1000);
+
+  return total;
+}
+
+List<String> formatador(List<String> dataHora) {
+  List<String> formattedList = [];
+
+  for (String dateTimeString in dataHora) {
+    // Replace '-' with '/'
+    String formattedDateTime = dateTimeString.replaceAll('-', '/');
+    // Replace 'T' with a space
+    formattedDateTime = formattedDateTime.replaceAll('T', '  ');
+
+    formattedList.add('  $formattedDateTime');
+  }
+
+  return formattedList;
+}
+
+
+List<String> valores(Map<String, double> values) {
+  List<String> sortedKeys = values.keys.toList();
+  List<String> data = [];
+
+  for (String key in sortedKeys) {
+    data.add('           ${getValueForKey(key, values)}');
+  }
+
+  return data;
+}
+
+List<TimeData> organizer(Map<String, double> values){
+
+  List<String> sortedKeys = values.keys.toList();
+
+  List<TimeData> data = [];
+
+  for(int i = 1; i < 16; i++){
+    data.add(TimeData(i.toString(), ((getValueForKey(sortedKeys[i - 1], values))!/1000)));
+  }
+
+  return data;
+}
+
+
+Column graph(List<TimeData> data) {
   return Column(
     children: [
       Container(
         color: Colors.white, // Set the background color to white
         child: SfCartesianChart(
           primaryXAxis: CategoryAxis(
-            title: AxisTitle(text: 'Horas'), // Legenda do Eixo X
+            title: AxisTitle(text: 'tempo (s)'), // Legenda do Eixo X
           ),
           primaryYAxis: NumericAxis(
-            title: AxisTitle(text: 'Consumo em kW'), // Legenda do Eixo Y
+            title: AxisTitle(text: 'Potência [kW]'), // Legenda do Eixo Y
           ),
           legend: const Legend(isVisible: false),
           tooltipBehavior: TooltipBehavior(enable: true),
@@ -122,27 +159,10 @@ Column Graph() {
               dataSource: data,
               xValueMapper: (TimeData sales, _) => sales.minute,
               yValueMapper: (TimeData sales, _) => sales.kwh,
-              name: 'Consumo em kWh',
+              name: '',
               dataLabelSettings: const DataLabelSettings(
                 isVisible: false,
               ),
-            ),
-          ],
-        ),
-      ),
-      Container( // Custom legend
-        padding: EdgeInsets.all(8.0),
-        child: Row(
-          children: [
-            Container(
-              width: 20, // Adjust the width as needed
-              height: 8, // Adjust the height as needed
-              color: Colors.blue, // Color marker symbol
-            ),
-            const SizedBox(width: 8), // Add spacing between symbol and text
-            const Text(
-              'Consumo em kWh',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
             ),
           ],
         ),
@@ -152,12 +172,6 @@ Column Graph() {
 }
 
 
-
-
-
-
-
-
 class TimeData{
   final String minute;
   final double kwh;
@@ -165,5 +179,65 @@ class TimeData{
   TimeData(this.minute, this.kwh);
 }
 
+// Function to generate a DataTable
+Widget buildDataTable(Map<String, double> values) {
 
+  //List<String> Keys = formatador(values.keys.toList());
+
+  List<String> coluna1 = formatador(values.keys.toList());
+  List<String> coluna2 = valores(values);
+
+  // Ensure that column1Data and column2Data have the same length
+  assert(coluna1.length == coluna2.length);
+
+  List<DataRow> dataRows = List<DataRow>.generate(
+    coluna1.length,
+        (int index) => DataRow(
+      cells: <DataCell>[
+        DataCell(
+          Text(
+            coluna1[index],
+            style: TextStyle(color: Colors.white), // Set text color to white
+          ),
+        ),
+        DataCell(
+          Text(
+            coluna2[index],
+            style: TextStyle(color: Colors.white), // Set text color to white
+          ),
+        ),
+      ],
+    ),
+  );
+
+
+  return SingleChildScrollView(
+    child: Container(
+      //color: Colors.white,
+      child: DataTable(
+        columns: const [
+          DataColumn(
+            label: Text(
+              '           Data e Hora',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          DataColumn(
+            label: Text(
+              '     Potência [kW]',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+        rows: dataRows,
+        // Add a border with specified width, color, and divider thickness
+        border: TableBorder.all(
+          width: 5.0, // Set the width of the border
+          color: Colors.black, // Set the color of the border
+          //dividerThickness: 5, // Set the thickness of the dividers
+        ),
+      ),
+    ),
+  );
+}
 
