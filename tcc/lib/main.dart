@@ -43,7 +43,7 @@ class _TccState extends State<Tcc> {
               ),
             ),
             Divider(
-              height: 35,
+              height: 30,
               color: Colors.grey[350],
             ),
             Row(
@@ -57,7 +57,7 @@ class _TccState extends State<Tcc> {
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(Colors.green),
-                    fixedSize: MaterialStateProperty.all(Size(100, 50)),
+                    fixedSize: MaterialStateProperty.all(Size(150, 50)),
                   ),
                   child: const Text(
                     'Ligar',
@@ -72,7 +72,7 @@ class _TccState extends State<Tcc> {
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(Colors.red),
-                    fixedSize: MaterialStateProperty.all(Size(100, 50)),
+                    fixedSize: MaterialStateProperty.all(Size(150, 50)),
                   ),
                   child: const Text(
                     'Desligar',
@@ -81,72 +81,82 @@ class _TccState extends State<Tcc> {
                 ),
               ],
             ),
-            const SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                FutureBuilder<DatabaseEvent>(
-                  future: ref.child('Power').once(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else if (!snapshot.hasData || snapshot.data == null) {
-                      return Text('No data available');
-                    } else {
-                      // You can access the DataSnapshot from the DatabaseEvent
-                      DataSnapshot dataSnapshot = snapshot.data!.snapshot;
-
-                      var value = dataSnapshot.value;
-
-                      String data = value.toString();
-                      Map<String, double> sortedData = sortFirebaseDataByDateTime(data);
-                      List<String> sortedKeys = sortedData.keys.toList();
-                      double? valor = getValueForKey(sortedKeys[3], sortedData);
-
-                      return boxes('Tensão:', valor.toString() + 'V');
-                    }
-                  },
-                ),
-                const SizedBox(width: 20),
-                // FutureBuilder<DatabaseEvent>(
-                //   future: ref.child('Corrente').child('-NdR28oZB-1vn0ZrP2G7').once(),
-                //   builder: (context, snapshot) {
-                //     if (snapshot.connectionState == ConnectionState.waiting) {
-                //       return CircularProgressIndicator();
-                //     } else if (snapshot.hasError) {
-                //       return Text('Error: ${snapshot.error}');
-                //     } else if (!snapshot.hasData || snapshot.data == null) {
-                //       return Text('No data available');
-                //     } else {
-                //       // You can access the DataSnapshot from the DatabaseEvent
-                //       DataSnapshot dataSnapshot = snapshot.data!.snapshot;
-                //       var value = dataSnapshot.value;
-                //       return boxes('Corrente:', value.toString() + 'A');
-                //     }
-                //   },
-                // ),
-                const SizedBox(width: 20),
-                // FutureBuilder<DatabaseEvent>(
-                //   future: ref.child('Potencia').child('-NdR28sburAq7HOH_6EM').once(),
-                //   builder: (context, snapshot) {
-                //     if (snapshot.connectionState == ConnectionState.waiting) {
-                //       return CircularProgressIndicator();
-                //     } else if (snapshot.hasError) {
-                //       return Text('Error: ${snapshot.error}');
-                //     } else if (!snapshot.hasData || snapshot.data == null) {
-                //       return Text('No data available');
-                //     } else {
-                //       // You can access the DataSnapshot from the DatabaseEvent
-                //       DataSnapshot dataSnapshot = snapshot.data!.snapshot;
-                //       var value = dataSnapshot.value;
-                //       return boxes('Potencia:', value.toString() + 'W');
-                //     }
-                //   },
-                // ),
-              ],
+            const SizedBox(height: 15),
+            Graph(),
+            const SizedBox(height: 15),
+            Container(
+              alignment: Alignment.bottomCenter,
+              child: Row(
+                  //mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  // FutureBuilder<DatabaseEvent>(
+                  //   future: ref.child('Power').once(),
+                  //   builder: (context, snapshot) {
+                  //     if (snapshot.connectionState == ConnectionState.waiting) {
+                  //       return CircularProgressIndicator();
+                  //     } else if (snapshot.hasError) {
+                  //       return Text('Error: ${snapshot.error}');
+                  //     } else if (!snapshot.hasData || snapshot.data == null) {
+                  //       return Text('No data available');
+                  //     } else {
+                  //       // You can access the DataSnapshot from the DatabaseEvent
+                  //       DataSnapshot dataSnapshot = snapshot.data!.snapshot;
+                  //
+                  //       var value = dataSnapshot.value;
+                  //
+                  //       String data = value.toString();
+                  //       Map<String, double> sortedData = sortFirebaseDataByDateTime(data);
+                  //       List<String> sortedKeys = sortedData.keys.toList();
+                  //       double? valor = getValueForKey(sortedKeys[9], sortedData);
+                  //
+                  //       return boxes('Tensão:', valor.toString() + 'V');
+                  //     }
+                  //   },
+                  // ),
+                  //const SizedBox(width: 20),
+                  // FutureBuilder<DatabaseEvent>(
+                  //   future: ref.child('Corrente').child('-NdR28oZB-1vn0ZrP2G7').once(),
+                  //   builder: (context, snapshot) {
+                  //     if (snapshot.connectionState == ConnectionState.waiting) {
+                  //       return CircularProgressIndicator();
+                  //     } else if (snapshot.hasError) {
+                  //       return Text('Error: ${snapshot.error}');
+                  //     } else if (!snapshot.hasData || snapshot.data == null) {
+                  //       return Text('No data available');
+                  //     } else {
+                  //       // You can access the DataSnapshot from the DatabaseEvent
+                  //       DataSnapshot dataSnapshot = snapshot.data!.snapshot;
+                  //       var value = dataSnapshot.value;
+                  //       return boxes('Corrente:', value.toString() + 'A');
+                  //     }
+                  //   },
+                  // ),
+                  //const SizedBox(width: 20),
+                  // FutureBuilder<DatabaseEvent>(
+                  //   future: ref.child('Potencia').child('-NdR28sburAq7HOH_6EM').once(),
+                  //   builder: (context, snapshot) {
+                  //     if (snapshot.connectionState == ConnectionState.waiting) {
+                  //       return CircularProgressIndicator();
+                  //     } else if (snapshot.hasError) {
+                  //       return Text('Error: ${snapshot.error}');
+                  //     } else if (!snapshot.hasData || snapshot.data == null) {
+                  //       return Text('No data available');
+                  //     } else {
+                  //       // You can access the DataSnapshot from the DatabaseEvent
+                  //       DataSnapshot dataSnapshot = snapshot.data!.snapshot;
+                  //       var value = dataSnapshot.value;
+                  //       return boxes('Potencia:', value.toString() + 'W');
+                  //     }
+                  //   },
+                  // ),
+                  const SizedBox(width: 15),
+                  boxes('Consumo Total:', '1,072 kWh'),
+                  SizedBox(width: 17),
+                  boxes('Valor:', 'R\$ 0,72'),
+                ],
+              ),
             ),
+
           ],
         ),
       ),
