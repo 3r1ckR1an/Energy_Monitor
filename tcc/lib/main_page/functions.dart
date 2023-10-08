@@ -3,7 +3,9 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:intl/intl.dart';
 
+//cria caixa com titulo e conteudo
 Column boxes(String above, String content){
   return Column(
     children: [
@@ -39,6 +41,7 @@ Column boxes(String above, String content){
   );
 }
 
+//ordena informacao aleatoria do firebase para uma lista
 Map<String, double> sortFirebaseDataByDateTime(String data) {
   Map<String, dynamic> mapData = Map<String, dynamic>.from(json.decode(data));
 
@@ -78,12 +81,12 @@ Map<String, double> sortFirebaseDataByDateTime(String data) {
   return sortedData;
 }
 
-
+//retorna um unico valor dentro da lista do firebase
 double? getValueForKey(String key, Map<String, double> sortedData) {
   return sortedData[key];
 }
 
-
+//valor de consumo total em kWh
 double? consumoTotal(Map<String, double> values) {
   List<String> sortedKeys = values.keys.toList();
   double? total = 0;
@@ -99,61 +102,150 @@ double? consumoTotal(Map<String, double> values) {
   return total;
 }
 
-List<String> formatador(List<String> dataHora) {
+
+//pega a data pra primeira coluna da tabela
+List<String> formatador(List<String> dataHora, DateTime? alterDataIni, DateTime? alterDataFim) {
   List<String> formattedList = [];
 
-  for (String dateTimeString in dataHora) {
-    // Replace '-' with '/'
-    String formattedDateTime = dateTimeString.replaceAll('-', '/');
-    // Replace 'T' with a space
-    formattedDateTime = formattedDateTime.replaceAll('T', '  ');
+  DateFormat dateTimeFormat = DateFormat('dd/MM/yyyy HH:mm:ss'); // Updated format with '/' instead of '-'
 
-    formattedList.add('  $formattedDateTime');
+  if ((alterDataIni != DateTime(1999, 1, 1)) && (alterDataFim != DateTime(1999, 1, 1))) {
+    for (String dateTimeString in dataHora) {
+      // Custom parsing of date and time components
+      List<String> components = dateTimeString.split('T');
+      if (components.length == 2) {
+        List<String> dateComponents = components[0].split('-');
+        List<String> timeComponents = components[1].split(':');
+
+        if (dateComponents.length == 3 && timeComponents.length == 3) {
+          int year = int.tryParse(dateComponents[2]) ?? 0;
+          int month = int.tryParse(dateComponents[1]) ?? 0;
+          int day = int.tryParse(dateComponents[0]) ?? 0;
+          int hour = int.tryParse(timeComponents[0]) ?? 0;
+          int minute = int.tryParse(timeComponents[1]) ?? 0;
+          int second = int.tryParse(timeComponents[2]) ?? 0;
+
+          DateTime dateTime = DateTime(year, month, day, hour, minute, second);
+
+          if (dateTime.isAfter(alterDataIni!) && dateTime.isBefore(alterDataFim!)) {
+            String formattedDateTime = dateTimeFormat.format(dateTime); // Format date and time
+            formattedList.add('           $formattedDateTime');
+          }
+        }
+      }
+    }
+  } else {
+    for (String dateTimeString in dataHora) {
+      // Replace '-' with '/'
+      String formattedDateTime = dateTimeString.replaceAll('-', '/');
+      // Replace 'T' with a space
+      formattedDateTime = formattedDateTime.replaceAll('T', '  ');
+
+      formattedList.add('          $formattedDateTime');
+    }
   }
 
   return formattedList;
 }
 
 
-List<String> valores(Map<String, double> values) {
+//retorna uma lista de valores vindo da lista do firebase
+List<String> valores(Map<String, double> values, DateTime? alterDataIni, DateTime? alterDataFim) {
   List<String> sortedKeys = values.keys.toList();
   List<String> data = [];
 
-  for (String key in sortedKeys) {
-    data.add('           ${getValueForKey(key, values)}');
+  if ((alterDataIni != DateTime(1999, 1, 1)) && (alterDataFim != DateTime(1999, 1, 1))) {
+    for (String key in sortedKeys) {
+      // Custom parsing of date and time components from the key
+      List<String> components = key.split('T');
+      if (components.length == 2) {
+        List<String> dateComponents = components[0].split('-');
+        List<String> timeComponents = components[1].split(':');
+
+        if (dateComponents.length == 3 && timeComponents.length == 3) {
+          int year = int.tryParse(dateComponents[2]) ?? 0;
+          int month = int.tryParse(dateComponents[1]) ?? 0;
+          int day = int.tryParse(dateComponents[0]) ?? 0;
+          int hour = int.tryParse(timeComponents[0]) ?? 0;
+          int minute = int.tryParse(timeComponents[1]) ?? 0;
+          int second = int.tryParse(timeComponents[2]) ?? 0;
+
+          DateTime dateTime = DateTime(year, month, day, hour, minute, second);
+
+          if (dateTime.isAfter(alterDataIni!) && dateTime.isBefore(alterDataFim!)) {
+            double value = values[key] ?? 0.0;
+            data.add((value / 1000).toStringAsFixed(3));
+          }
+        }
+      }
+    }
+  } else {
+    for (String key in sortedKeys) {
+      double value = values[key] ?? 0.0;
+      data.add((value / 1000).toStringAsFixed(3));
+    }
   }
 
   return data;
 }
 
-List<TimeData> organizer(Map<String, double> values){
 
+
+
+List<TimeData> organizer(Map<String, double> values) {
   List<String> sortedKeys = values.keys.toList();
-
   List<TimeData> data = [];
 
-  for(int i = 1; i < 16; i++){
-    data.add(TimeData(i.toString(), ((getValueForKey(sortedKeys[i - 1], values))!/1000)));
+  int startIndex = sortedKeys.length - 45; // Índice de início dos últimos 45 valores
+
+  for (int i = startIndex; i < sortedKeys.length; i++) {
+    List<String> keyParts = sortedKeys[i].split('T');
+    if (keyParts.length == 2) {
+      String timePart = keyParts[1];
+      data.add(TimeData(timePart, (values[sortedKeys[i]]! / 1000)));
+    }
   }
 
   return data;
 }
 
 
+
+//Monta o gráfico
 Column graph(List<TimeData> data) {
   return Column(
     children: [
       Container(
-        color: Colors.white, // Set the background color to white
+        color: Colors.white, // Define a cor de fundo como branca
+        width: 400, // Defina a largura desejada do gráfico
+        height: 370, // Defina a altura desejada do gráfico
         child: SfCartesianChart(
           primaryXAxis: CategoryAxis(
-            title: AxisTitle(text: 'tempo (s)'), // Legenda do Eixo X
+            title: AxisTitle(
+              text: 'Tempo',
+              alignment: ChartAlignment.center,
+              textStyle: const TextStyle(
+                fontSize: 14, // Tamanho da fonte da legenda
+                fontWeight: FontWeight.bold, // Estilo da fonte da legenda
+              ),
+            ),
+            labelRotation: -90,
           ),
           primaryYAxis: NumericAxis(
-            title: AxisTitle(text: 'Potência [kW]'), // Legenda do Eixo Y
+            title: AxisTitle(
+              text: 'Potência [kW]',
+              alignment: ChartAlignment.center,
+              textStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           legend: const Legend(isVisible: false),
-          tooltipBehavior: TooltipBehavior(enable: true),
+          tooltipBehavior: TooltipBehavior(
+            enable: true,
+            format: 'Potência [kW]: point.y', // Formato do Tooltip
+          ),
           series: <ChartSeries<TimeData, String>>[
             LineSeries<TimeData, String>(
               dataSource: data,
@@ -173,19 +265,18 @@ Column graph(List<TimeData> data) {
 
 
 class TimeData{
-  final String minute;
+  final String? minute;
   final double kwh;
 
   TimeData(this.minute, this.kwh);
 }
 
+
 // Function to generate a DataTable
-Widget buildDataTable(Map<String, double> values) {
-
-  //List<String> Keys = formatador(values.keys.toList());
-
-  List<String> coluna1 = formatador(values.keys.toList());
-  List<String> coluna2 = valores(values);
+Widget buildDataTable(Map<String, double> values, DateTime alterDataIni, alterDataFim) {
+  List<String> coluna1 = formatador(values.keys.toList(), alterDataIni, alterDataFim);
+  List<String> coluna2 = valores(values, alterDataIni, alterDataFim);
+  print(values);
 
   // Ensure that column1Data and column2Data have the same length
   assert(coluna1.length == coluna2.length);
@@ -201,32 +292,33 @@ Widget buildDataTable(Map<String, double> values) {
           ),
         ),
         DataCell(
-          Text(
-            coluna2[index],
-            style: TextStyle(color: Colors.white), // Set text color to white
+          Center( // Center-align the text within the cell
+            child: Text(
+              coluna2[index],
+              style: TextStyle(color: Colors.white), // Set text color to white
+            ),
           ),
         ),
       ],
     ),
   );
 
-
   return SingleChildScrollView(
     child: Container(
-      //color: Colors.white,
       child: DataTable(
         columns: const [
           DataColumn(
             label: Text(
-              '           Data e Hora',
+              '                    Data e Hora',
               style: TextStyle(color: Colors.white),
             ),
           ),
           DataColumn(
             label: Text(
-              '     Potência [kW]',
+              'Potência [kW]',
               style: TextStyle(color: Colors.white),
             ),
+            numeric: true, // Set the second column as numeric for wider width
           ),
         ],
         rows: dataRows,
@@ -234,10 +326,8 @@ Widget buildDataTable(Map<String, double> values) {
         border: TableBorder.all(
           width: 5.0, // Set the width of the border
           color: Colors.black, // Set the color of the border
-          //dividerThickness: 5, // Set the thickness of the dividers
         ),
       ),
     ),
   );
 }
-
