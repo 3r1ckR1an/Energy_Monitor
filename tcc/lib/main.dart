@@ -21,12 +21,36 @@ class Tcc extends StatefulWidget {
 class _TccState extends State<Tcc> {
   final DatabaseReference ref = FirebaseDatabase.instance.ref().child("");
   late double consumo = 0;
+  double tarifa = 0.89;
   String avatarImagePath = 'assets/on.png';
 
   DateTime startDate = DateTime.now();
   late DateTime alterDataIni = DateTime(1999, 1, 1);
   DateTime endDate = DateTime.now();
   late DateTime alterDataFim = DateTime(1999, 1, 1);
+
+  @override
+  void initState() {
+    super.initState();
+    // Call your calculateConsumoTotal function here
+    _calculateConsumoTotal();
+  }
+
+  _calculateConsumoTotal() async {
+    try {
+      DataSnapshot dataSnapshot = (await ref.child('Power').once()).snapshot;
+      var value = dataSnapshot.value;
+      String data = value.toString();
+      Map<String, double> sortedData = sortFirebaseDataByDateTime(data);
+      double totalConsumo = consumoTotal(sortedData, alterDataIni, alterDataFim) ?? 0;
+      setState(() {
+        consumo = totalConsumo;
+      });
+    } catch (e) {
+      print('Error: $e');
+      // Handle the error appropriately if needed
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +130,6 @@ class _TccState extends State<Tcc> {
                     ],
                   ),
                   const SizedBox(height: 15),
-
                   FutureBuilder<DatabaseEvent>(
                     future: ref.child('Power').once(),
                     builder: (context, snapshot) {
@@ -123,7 +146,7 @@ class _TccState extends State<Tcc> {
 
                         String data = value.toString();
                         Map<String, double> sortedData = sortFirebaseDataByDateTime(data);
-                        consumo = consumoTotal(sortedData)!;
+                        consumo = consumoTotal(sortedData, alterDataIni, alterDataFim)!;
                         return graph(organizer(sortedData));
                       }
                     },
@@ -141,10 +164,17 @@ class _TccState extends State<Tcc> {
                     Container(
                       child: Row(
                         children: <Widget>[
-                          const SizedBox(width: 40),
+                          //const SizedBox(width: 40),
+                          IconButton(
+                            onPressed: () {
+                              _showTarifaDialog(context);
+                            },
+                            icon: Icon(Icons.monetization_on), // Money icon
+                            color: Colors.blue,
+                          ),
                           boxes('Consumo Total:', '${consumo!} kWh'),
-                          SizedBox(width: 20),
-                          boxes('Valor:', 'R\$ ' '${(consumo! * 0.89).toStringAsFixed(2)}'),
+                          const SizedBox(width: 15),
+                          boxes('Valor:', 'R\$ ' '${(consumo! * tarifa).toStringAsFixed(2)}'),
                           IconButton(
                             onPressed: () {
                               _showDateFilterDialog(context);
@@ -261,6 +291,7 @@ class _TccState extends State<Tcc> {
                   DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day, selectedStartTime.hour, selectedStartTime.minute),
                   DateTime(selectedEndDate.year, selectedEndDate.month, selectedEndDate.day, selectedEndTime.hour, selectedEndTime.minute),
                 ]);
+                _calculateConsumoTotal();
               },
               child: Text('Filtrar'),
             ),
@@ -326,5 +357,52 @@ class _TccState extends State<Tcc> {
         ],
       ),
     );
+  }
+
+  Future<void> _showTarifaDialog(BuildContext context) async {
+    final newTarifa = await showDialog<double>(
+      context: context,
+      builder: (context) {
+        double newTarifa = tarifa;
+
+        return AlertDialog(
+          title: Text('Definir Tarifa'),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Insira o valor da Tarifa (R\$):'),
+                  SizedBox(height: 16.0),
+                  TextFormField(
+                    initialValue: newTarifa.toString(),
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    onChanged: (value) {
+                      newTarifa = double.tryParse(value) ?? 0.0;
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(newTarifa);
+                _calculateConsumoTotal();
+              },
+              child: Text('Salvar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (newTarifa != null) {
+      setState(() {
+        tarifa = newTarifa;
+
+      });
+    }
   }
 }

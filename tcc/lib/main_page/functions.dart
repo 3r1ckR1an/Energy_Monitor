@@ -87,20 +87,49 @@ double? getValueForKey(String key, Map<String, double> sortedData) {
 }
 
 //valor de consumo total em kWh
-double? consumoTotal(Map<String, double> values) {
-  List<String> sortedKeys = values.keys.toList();
+double? consumoTotal(Map<String, double> values, DateTime? alterDataIni, DateTime? alterDataFim) {
   double? total = 0;
 
-  for (int i = 1; i < 16; i++) {
-    double? value = getValueForKey(sortedKeys[i - 1], values);
-    if (value != null) {
-      total = total! + value;
+  if ((alterDataIni != DateTime(1999, 1, 1)) && (alterDataFim != DateTime(1999, 1, 1))) {
+    for (String key in values.keys) {
+      // Custom parsing of date and time components from the key
+      List<String> components = key.split('T');
+      if (components.length == 2) {
+        List<String> dateComponents = components[0].split('-');
+        List<String> timeComponents = components[1].split(':');
+
+        if (dateComponents.length == 3 && timeComponents.length == 3) {
+          int year = int.tryParse(dateComponents[2]) ?? 0;
+          int month = int.tryParse(dateComponents[1]) ?? 0;
+          int day = int.tryParse(dateComponents[0]) ?? 0;
+          int hour = int.tryParse(timeComponents[0]) ?? 0;
+          int minute = int.tryParse(timeComponents[1]) ?? 0;
+          int second = int.tryParse(timeComponents[2]) ?? 0;
+
+          DateTime dateTime = DateTime(year, month, day, hour, minute, second);
+
+          if (dateTime.isAfter(alterDataIni!) && dateTime.isBefore(alterDataFim!)) {
+            double? value = values[key];
+            if (value != null) {
+              total = total! + value;
+            }
+          }
+        }
+      }
+    }
+  } else {
+    for (double? value in values.values) {
+      if (value != null) {
+        total = total! + value;
+      }
     }
   }
-  total = (total!/1000);
 
-  return total;
+  // Limit the result to two decimal places
+  return total != null ? double.parse((total / 1000).toStringAsFixed(3)) : null;
 }
+
+
 
 
 //pega a data pra primeira coluna da tabela
@@ -276,7 +305,6 @@ class TimeData{
 Widget buildDataTable(Map<String, double> values, DateTime alterDataIni, alterDataFim) {
   List<String> coluna1 = formatador(values.keys.toList(), alterDataIni, alterDataFim);
   List<String> coluna2 = valores(values, alterDataIni, alterDataFim);
-  print(values);
 
   // Ensure that column1Data and column2Data have the same length
   assert(coluna1.length == coluna2.length);
