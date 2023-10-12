@@ -102,13 +102,14 @@ class _TccState extends State<Tcc> {
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(Colors.green),
-                          fixedSize: MaterialStateProperty.all(Size(150, 50)),
+                          fixedSize: MaterialStateProperty.all(Size(140, 50)),
                         ),
                         child: const Text(
                           'Ligar',
                           style: TextStyle(fontSize: 18),
                         ),
                       ),
+                      const SizedBox(width: 4),
                       ElevatedButton(
                         onPressed: () {
                           ref.update({
@@ -120,7 +121,7 @@ class _TccState extends State<Tcc> {
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(Colors.red),
-                          fixedSize: MaterialStateProperty.all(Size(150, 50)),
+                          fixedSize: MaterialStateProperty.all(Size(140, 50)),
                         ),
                         child: const Text(
                           'Desligar',
@@ -160,11 +161,9 @@ class _TccState extends State<Tcc> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    const SizedBox(height: 20),
                     Container(
                       child: Row(
                         children: <Widget>[
-                          //const SizedBox(width: 40),
                           IconButton(
                             onPressed: () {
                               _showTarifaDialog(context);
@@ -172,9 +171,7 @@ class _TccState extends State<Tcc> {
                             icon: Icon(Icons.monetization_on), // Money icon
                             color: Colors.blue,
                           ),
-                          boxes('Consumo Total:', '${consumo!} kWh'),
-                          const SizedBox(width: 15),
-                          boxes('Valor:', 'R\$ ' '${(consumo! * tarifa).toStringAsFixed(2)}'),
+                          const SizedBox(width: 263),
                           IconButton(
                             onPressed: () {
                               _showDateFilterDialog(context);
@@ -182,6 +179,16 @@ class _TccState extends State<Tcc> {
                             icon: Icon(Icons.filter_list),
                             color: Colors.blue,
                           ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      child: Row(
+                        children: <Widget>[
+                          const SizedBox(width: 25),
+                          boxes('Consumo Total:', '${consumo!} kWh'),
+                          const SizedBox(width: 10),
+                          boxes('Valor:', 'R\$ ' '${(consumo! * tarifa).toStringAsFixed(2)}'),
                         ],
                       ),
                     ),
@@ -315,7 +322,6 @@ class _TccState extends State<Tcc> {
   Widget _buildDateButton(DateTime date, Function(DateTime) onDateSelected) {
     final formattedDate = DateFormat('dd-MM-yyyy').format(date); // Format the date as 'day-month-year'
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.0),
       child: Row(
         children: [
           TextButton(
@@ -339,7 +345,6 @@ class _TccState extends State<Tcc> {
 
   Widget _buildTimeButton(TimeOfDay time, Function(TimeOfDay) onTimeSelected) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.0),
       child: Row(
         children: [
           TextButton(

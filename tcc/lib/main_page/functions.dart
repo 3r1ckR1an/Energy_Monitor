@@ -158,7 +158,7 @@ List<String> formatador(List<String> dataHora, DateTime? alterDataIni, DateTime?
 
           if (dateTime.isAfter(alterDataIni!) && dateTime.isBefore(alterDataFim!)) {
             String formattedDateTime = dateTimeFormat.format(dateTime); // Format date and time
-            formattedList.add('           $formattedDateTime');
+            formattedList.add('    $formattedDateTime');
           }
         }
       }
@@ -170,7 +170,7 @@ List<String> formatador(List<String> dataHora, DateTime? alterDataIni, DateTime?
       // Replace 'T' with a space
       formattedDateTime = formattedDateTime.replaceAll('T', '  ');
 
-      formattedList.add('          $formattedDateTime');
+      formattedList.add('    $formattedDateTime');
     }
   }
 
@@ -219,8 +219,6 @@ List<String> valores(Map<String, double> values, DateTime? alterDataIni, DateTim
 }
 
 
-
-
 List<TimeData> organizer(Map<String, double> values) {
   List<String> sortedKeys = values.keys.toList();
   List<TimeData> data = [];
@@ -237,7 +235,6 @@ List<TimeData> organizer(Map<String, double> values) {
 
   return data;
 }
-
 
 
 //Monta o gráfico
@@ -337,7 +334,7 @@ Widget buildDataTable(Map<String, double> values, DateTime alterDataIni, alterDa
         columns: const [
           DataColumn(
             label: Text(
-              '                    Data e Hora',
+              '              Data e Hora',
               style: TextStyle(color: Colors.white),
             ),
           ),
