@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'main_page/functions.dart';
+import 'main_page/login.dart';
 import 'package:intl/intl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MaterialApp(
-    home: Tcc(),
+    home: LoginPage(),
   ));
 }
 
@@ -22,6 +23,7 @@ class _TccState extends State<Tcc> {
   final DatabaseReference ref = FirebaseDatabase.instance.ref().child("");
   late double consumo = 0;
   double tarifa = 0.89;
+  int limpou = 0;
   String avatarImagePath = 'assets/on.png';
 
   DateTime startDate = DateTime.now();
@@ -42,6 +44,12 @@ class _TccState extends State<Tcc> {
       var value = dataSnapshot.value;
       String data = value.toString();
       Map<String, double> sortedData = sortFirebaseDataByDateTime(data);
+
+      if (limpou == 1){
+        alterDataIni = DateTime(1999, 1, 1);
+        alterDataFim = DateTime(1999, 1, 1);
+      }
+
       double totalConsumo = consumoTotal(sortedData, alterDataIni, alterDataFim) ?? 0;
       setState(() {
         consumo = totalConsumo;
@@ -50,6 +58,8 @@ class _TccState extends State<Tcc> {
       print('Error: $e');
       // Handle the error appropriately if needed
     }
+
+    limpou = 0;
   }
 
   @override
@@ -59,7 +69,20 @@ class _TccState extends State<Tcc> {
       child: Scaffold(
         backgroundColor: Colors.grey[900],
         appBar: AppBar(
-          title: const Text('Monitoramento de Energia'),
+          leading: Row(
+            children: [
+              IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Use Navigator to navigate back to the previous page.
+                },
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 20.0), // Add spacing between the back arrow and your custom image.
+                child: Image.asset('assets/AppBar2.png'), // Replace with your image path.
+              ),
+            ],
+          ),
           centerTitle: true,
           backgroundColor: Colors.grey[850],
           elevation: 0,
@@ -78,15 +101,14 @@ class _TccState extends State<Tcc> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Center(
-                    child: CircleAvatar(
-                      backgroundImage: AssetImage(avatarImagePath),
-                      radius: 40,
+                  SizedBox(
+                    height: 130, // Adjust the height as needed
+                    child: Center(
+                      child: CircleAvatar(
+                        backgroundImage: AssetImage(avatarImagePath),
+                        radius: 40,
+                      ),
                     ),
-                  ),
-                  Divider(
-                    height: 30,
-                    color: Colors.grey[350],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -130,7 +152,20 @@ class _TccState extends State<Tcc> {
                       ),
                     ],
                   ),
+                  Divider(
+                    height: 20,
+                    color: Colors.grey[350],
+                  ),
                   const SizedBox(height: 15),
+                  const Text(
+                    '            Consumo de Energia Elétrica',
+                    style: TextStyle(
+                      fontSize: 16, // Adjust the font size as needed
+                      fontWeight: FontWeight.bold, // You can change the font weight if desired
+                      color: Colors.white, // Set the text color to white
+                    ),
+                  ),
+                  const SizedBox(height: 5),
                   FutureBuilder<DatabaseEvent>(
                     future: ref.child('Power').once(),
                     builder: (context, snapshot) {
@@ -148,7 +183,7 @@ class _TccState extends State<Tcc> {
                         String data = value.toString();
                         Map<String, double> sortedData = sortFirebaseDataByDateTime(data);
                         consumo = consumoTotal(sortedData, alterDataIni, alterDataFim)!;
-                        return graph(organizer(sortedData));
+                        return graph(organizer(sortedData, alterDataIni, alterDataFim));
                       }
                     },
                   ),
@@ -245,7 +280,7 @@ class _TccState extends State<Tcc> {
                   Row(
                     children: [
                       Text('Início:'),
-                      SizedBox(width: 10.0),//
+                      SizedBox(width: 10.0),
                       _buildDateButton(
                         selectedStartDate,
                             (selectedDate) {
@@ -287,6 +322,21 @@ class _TccState extends State<Tcc> {
                       ),
                     ],
                   ),
+                  SizedBox(height: 16.0),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        startDate = DateTime.now();
+                        endDate = DateTime.now();
+                        alterDataIni = DateTime(1999, 1, 1);
+                        alterDataFim = DateTime(1999, 1, 1);
+                      });
+                      Navigator.of(context).pop([startDate, endDate]);
+                      limpou = 1;
+                      _calculateConsumoTotal();
+                    },
+                    child: Text('Limpar Formatação'),
+                  ),
                 ],
               );
             },
@@ -313,11 +363,11 @@ class _TccState extends State<Tcc> {
         endDate = selectedDates[1];
       });
       // Add your filter logic here using startDate and endDate
-      // For example: Apply the date filter to your data
       alterDataIni = startDate;
       alterDataFim = endDate;
     }
   }
+
 
   Widget _buildDateButton(DateTime date, Function(DateTime) onDateSelected) {
     final formattedDate = DateFormat('dd-MM-yyyy').format(date); // Format the date as 'day-month-year'

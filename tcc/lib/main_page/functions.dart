@@ -219,17 +219,44 @@ List<String> valores(Map<String, double> values, DateTime? alterDataIni, DateTim
 }
 
 
-List<TimeData> organizer(Map<String, double> values) {
+List<TimeData> organizer(Map<String, double> values, DateTime? alterDataIni, DateTime? alterDataFim) {
   List<String> sortedKeys = values.keys.toList();
   List<TimeData> data = [];
 
-  int startIndex = sortedKeys.length - 45; // Índice de início dos últimos 45 valores
+  if ((alterDataIni != DateTime(1999, 1, 1)) && (alterDataFim != DateTime(1999, 1, 1))) {
+    for (int i = 0; i < sortedKeys.length; i++) {
+      List<String> keyParts = sortedKeys[i].split('T');
+      if (keyParts.length == 2) {
+        List<String> dateComponents = keyParts[0].split('-');
+        List<String> timeComponents = keyParts[1].split(':');
 
-  for (int i = startIndex; i < sortedKeys.length; i++) {
-    List<String> keyParts = sortedKeys[i].split('T');
-    if (keyParts.length == 2) {
-      String timePart = keyParts[1];
-      data.add(TimeData(timePart, (values[sortedKeys[i]]! / 1000)));
+        if (dateComponents.length == 3 && timeComponents.length == 3) {
+          int year = int.tryParse(dateComponents[2]) ?? 0;
+          int month = int.tryParse(dateComponents[1]) ?? 0;
+          int day = int.tryParse(dateComponents[0]) ?? 0;
+          int hour = int.tryParse(timeComponents[0]) ?? 0;
+          int minute = int.tryParse(timeComponents[1]) ?? 0;
+          int second = int.tryParse(timeComponents[2]) ?? 0;
+
+          DateTime dateTime = DateTime(year, month, day, hour, minute, second);
+
+          if (dateTime.isAfter(alterDataIni!) && dateTime.isBefore(alterDataFim!)) {
+            String timePart = keyParts[1];
+            double value = values[sortedKeys[i]]! / 1000;
+            data.add(TimeData(timePart, value));
+          }
+        }
+      }
+    }
+  } else {
+    int startIndex = sortedKeys.length - 45;
+
+    for (int i = startIndex; i < sortedKeys.length; i++) {
+      List<String> keyParts = sortedKeys[i].split('T');
+      if (keyParts.length == 2) {
+        String timePart = keyParts[1];
+        data.add(TimeData(timePart, (values[sortedKeys[i]]! / 1000)));
+      }
     }
   }
 

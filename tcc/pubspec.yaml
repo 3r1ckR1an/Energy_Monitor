@@ -35,6 +35,7 @@ dependencies:
   firebase_database: ^10.1.0
   syncfusion_flutter_charts: ^23.1.36
   intl: ^0.18.1
+  google_sign_in: ^6.1.5
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -67,7 +68,11 @@ flutter:
     - assets/off.png
     - assets/on.png
     - assets/kanna.jpg
-    - assets/lampada.jpg
+    - assets/logo.png
+    - assets/gmail.png
+    - assets/on2.png
+    - assets/bar.png
+    - assets/AppBar2.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
