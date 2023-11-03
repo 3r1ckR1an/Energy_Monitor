@@ -20,6 +20,8 @@ class Tcc extends StatefulWidget {
 }
 
 class _TccState extends State<Tcc> {
+  bool isLigarEnabled = true;
+  bool isDesligarEnabled = true;
   final DatabaseReference ref = FirebaseDatabase.instance.ref().child("");
   late double consumo = 0;
   double tarifa = 0.89;
@@ -71,18 +73,25 @@ class _TccState extends State<Tcc> {
         appBar: AppBar(
           leading: Row(
             children: [
-              IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Use Navigator to navigate back to the previous page.
-                },
-              ),
               Container(
-                margin: EdgeInsets.only(left: 20.0), // Add spacing between the back arrow and your custom image.
-                child: Image.asset('assets/AppBar2.png'), // Replace with your image path.
+                margin: EdgeInsets.only(left: 90.0),
+                child: Image.asset(
+                  'assets/AppBar2.png',
+                  width: 170,
+                  height: 70,
+                  fit: BoxFit.contain,
+                ),
               ),
             ],
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.exit_to_app),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
           centerTitle: true,
           backgroundColor: Colors.grey[850],
           elevation: 0,
@@ -114,14 +123,18 @@ class _TccState extends State<Tcc> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: isLigarEnabled
+                            ? () {
                           ref.update({
                             "Led_Status": 'on',
                           });
                           setState(() {
                             avatarImagePath = 'assets/on.png';
+                            isLigarEnabled = false;
+                            isDesligarEnabled = true;
                           });
-                        },
+                        }
+                            : null, // Set onPressed to null when disabled
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(Colors.green),
                           fixedSize: MaterialStateProperty.all(Size(140, 50)),
@@ -133,14 +146,18 @@ class _TccState extends State<Tcc> {
                       ),
                       const SizedBox(width: 4),
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: isDesligarEnabled
+                            ? () {
                           ref.update({
                             "Led_Status": 'off',
                           });
                           setState(() {
                             avatarImagePath = 'assets/off.png';
+                            isLigarEnabled = true;
+                            isDesligarEnabled = false;
                           });
-                        },
+                        }
+                            : null, // Set onPressed to null when disabled
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(Colors.red),
                           fixedSize: MaterialStateProperty.all(Size(140, 50)),
@@ -199,6 +216,7 @@ class _TccState extends State<Tcc> {
                     Container(
                       child: Row(
                         children: <Widget>[
+                          const SizedBox(width: 11),
                           IconButton(
                             onPressed: () {
                               _showTarifaDialog(context);
@@ -206,7 +224,7 @@ class _TccState extends State<Tcc> {
                             icon: Icon(Icons.monetization_on), // Money icon
                             color: Colors.blue,
                           ),
-                          const SizedBox(width: 263),
+                          const SizedBox(width: 243),
                           IconButton(
                             onPressed: () {
                               _showDateFilterDialog(context);
@@ -268,6 +286,12 @@ class _TccState extends State<Tcc> {
         TimeOfDay selectedStartTime = TimeOfDay.fromDateTime(startDate);
         TimeOfDay selectedEndTime = TimeOfDay.fromDateTime(endDate);
 
+        final buttonStyle = ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue, // Change the button color to your preference
+          foregroundColor: Colors.white, // Change the text color to your preference
+          minimumSize: Size(120, 40), // Adjust the button size as needed
+        );
+
         return AlertDialog(
           title: Text('Filtrar por Data e Hora'),
           content: StatefulBuilder(
@@ -302,7 +326,7 @@ class _TccState extends State<Tcc> {
                   SizedBox(height: 16.0),
                   Row(
                     children: [
-                      Text('Fim:'),
+                      Text('Fim:   '),
                       SizedBox(width: 10.0),
                       _buildDateButton(
                         selectedEndDate,
@@ -323,34 +347,41 @@ class _TccState extends State<Tcc> {
                     ],
                   ),
                   SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        startDate = DateTime.now();
-                        endDate = DateTime.now();
-                        alterDataIni = DateTime(1999, 1, 1);
-                        alterDataFim = DateTime(1999, 1, 1);
-                      });
-                      Navigator.of(context).pop([startDate, endDate]);
-                      limpou = 1;
-                      _calculateConsumoTotal();
-                    },
-                    child: Text('Limpar Formatação'),
-                  ),
                 ],
               );
             },
           ),
           actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop([
-                  DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day, selectedStartTime.hour, selectedStartTime.minute),
-                  DateTime(selectedEndDate.year, selectedEndDate.month, selectedEndDate.day, selectedEndTime.hour, selectedEndTime.minute),
-                ]);
-                _calculateConsumoTotal();
-              },
-              child: Text('Filtrar'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      startDate = DateTime.now();
+                      endDate = DateTime.now();
+                      alterDataIni = DateTime(1999, 1, 1);
+                      alterDataFim = DateTime(1999, 1, 1);
+                    });
+                    Navigator.of(context).pop([startDate, endDate]);
+                    limpou = 1;
+                    _calculateConsumoTotal();
+                  },
+                  style: buttonStyle, // Apply the custom style to the button
+                  child: Text('Limpar'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop([
+                      DateTime(selectedStartDate.year, selectedStartDate.month, selectedStartDate.day, selectedStartTime.hour, selectedStartTime.minute),
+                      DateTime(selectedEndDate.year, selectedEndDate.month, selectedEndDate.day, selectedEndTime.hour, selectedEndTime.minute),
+                    ]);
+                    _calculateConsumoTotal();
+                  },
+                  style: buttonStyle, // Apply the custom style to the button
+                  child: Text('Filtrar'),
+                ),
+              ],
             ),
           ],
         );
@@ -367,6 +398,8 @@ class _TccState extends State<Tcc> {
       alterDataFim = endDate;
     }
   }
+
+
 
 
   Widget _buildDateButton(DateTime date, Function(DateTime) onDateSelected) {
@@ -427,7 +460,10 @@ class _TccState extends State<Tcc> {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Insira o valor da Tarifa (R\$):'),
+                  Align(
+                    alignment: Alignment.centerLeft, // Adjust alignment as needed
+                    child: Text('Insira o valor da Tarifa (R\$):'),
+                  ),
                   SizedBox(height: 16.0),
                   TextFormField(
                     initialValue: newTarifa.toString(),
@@ -446,8 +482,14 @@ class _TccState extends State<Tcc> {
                 Navigator.of(context).pop(newTarifa);
                 _calculateConsumoTotal();
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue, // Change the button color to your preference
+                foregroundColor: Colors.white, // Change the text color to your preference
+                minimumSize: Size(120, 40), // Adjust the button size as needed
+              ),
               child: Text('Salvar'),
             ),
+
           ],
         );
       },
@@ -456,8 +498,9 @@ class _TccState extends State<Tcc> {
     if (newTarifa != null) {
       setState(() {
         tarifa = newTarifa;
-
       });
     }
   }
+
+
 }

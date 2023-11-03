@@ -1,35 +1,38 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(MaterialApp(
-  home: Home()
-));
+void main() {
+  runApp(MyApp());
+}
 
-
-class Home extends StatelessWidget {
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Meu aplicativo'),
-        centerTitle: true,
-        backgroundColor: Colors.red[300],
-      ),
-      body: Center(
-        child: Text(
-          'hello ninjas',
-          style: TextStyle(
-            fontSize: 30.0,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 2.0,
-            color: Colors.grey[600],
-            fontFamily: 'IndieFlower',
+    return MaterialApp(
+      home: DefaultTabController(
+        length: 2, // Number of tabs
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Tabbed App'),
+            bottom: TabBar(
+              tabs: [
+                Tab(text: 'Tab 1'),
+                Tab(text: 'Tab 2'),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              // Contents of Tab 1
+              Center(
+                child: Text('Tab 1 Content'),
+              ),
+              // Contents of Tab 2
+              Center(
+                child: Text('Tab 2 Content'),
+              ),
+            ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Text('Click'),
-        backgroundColor: Colors.red[300],
       ),
     );
   }

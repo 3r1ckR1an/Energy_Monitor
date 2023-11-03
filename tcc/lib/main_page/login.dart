@@ -17,14 +17,16 @@ class LoginPage extends StatelessWidget {
       return;
     }
 
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final GoogleSignInAuthentication googleAuth = await googleUser
+        .authentication;
     final AuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
 
     try {
-      final UserCredential authResult = await FirebaseAuth.instance.signInWithCredential(credential);
+      final UserCredential authResult = await FirebaseAuth.instance
+          .signInWithCredential(credential);
       final User? user = authResult.user;
 
       if (user != null) {
@@ -46,30 +48,37 @@ class LoginPage extends StatelessWidget {
         physics: NeverScrollableScrollPhysics(),
         child: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min, // Set the mainAxisSize to min
             children: <Widget>[
-              SizedBox(height: 10), // Add space for logo
-              Image.asset('assets/logo.png', width: 550, height: 550), // Replace 'assets/logo.png' with your logo image path
-              SizedBox(height: 10),
               Container(
-                width: 200, // Adjust the width as needed
+                margin: EdgeInsets.only(top: 150), // Add margin to move the logo down
+                child: Image.asset(
+                  'assets/logo.png',
+                  width: 300,
+                  height: 300,
+                ),
+              ),
+              Container(
+                width: 200,
                 child: Column(
                   children: <Widget>[
                     ElevatedButton(
                       onPressed: () {
-                        _handleSignInWithGoogle(context); // Handle Google sign-in
+                        _handleSignInWithGoogle(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white, // Set the background color to red
+                        backgroundColor: Colors.white,
                       ),
                       child: Row(
                         children: <Widget>[
                           Align(
-                            alignment: Alignment.centerLeft, // Align the image to the left
+                            alignment: Alignment.centerLeft,
                             child: Container(
-                              padding: EdgeInsets.all(8), // Add padding to the inner container (adjust as needed)
-                              child: Image.asset('assets/gmail.png', width: 24, height: 24),
+                              padding: EdgeInsets.all(8),
+                              child: Image.asset(
+                                'assets/gmail.png',
+                                width: 24,
+                                height: 24,
+                              ),
                             ),
                           ),
                           SizedBox(width: 2),
@@ -83,7 +92,7 @@ class LoginPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 20),
                     const Row(
                       children: <Widget>[
                         Expanded(
@@ -110,22 +119,23 @@ class LoginPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginWithEmailPage()));
+                        Navigator.push(context, MaterialPageRoute(builder: (
+                            context) => LoginWithEmailPage()));
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.black,
-                        minimumSize: Size(200, 40), // Adjust width and height as needed
+                        minimumSize: Size(200, 40),
                       ),
                       child: Text(
-                        'Entrar com Email',
-                        softWrap: true, // Allow text to wrap within the button
+                        'Entrar com E-mail',
+                        softWrap: true,
                         style: TextStyle(
-                          fontWeight: FontWeight.bold, // Set the text to be bold (thicker)
-                          color: Colors.grey[900], // Set the text color to grey[900]
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[900],
                         ),
                       ),
                     ),
@@ -138,9 +148,10 @@ class LoginPage extends StatelessWidget {
       ),
     );
   }
+
 }
 
-void main() {
+  void main() {
   runApp(
     MaterialApp(
       home: LoginPage(),

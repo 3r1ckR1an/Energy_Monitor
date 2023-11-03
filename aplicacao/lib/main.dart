@@ -13,7 +13,7 @@ class Aplicacao extends StatelessWidget {
     return Scaffold( //Barra de cima
       backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: const Text('Erick ID Card'),
+        title: const Text('Monitoramento de Energia'),
         centerTitle: true,
         backgroundColor: Colors.grey[850],
         elevation: 0,
@@ -30,7 +30,7 @@ class Aplicacao extends StatelessWidget {
               ),
             ),
             Divider(
-              height: 90,
+              height: 50,
               color: Colors.grey[800],
             ),
             const Text(

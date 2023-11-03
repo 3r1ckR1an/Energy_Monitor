@@ -1,0 +1,7 @@
+Vídeo 8
+
+Pra colocar imagem pode usar o comando:
+
+* Image.asset
+
+* Image.network

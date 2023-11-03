@@ -19,10 +19,23 @@ class ResetPasswordPage extends StatelessWidget {
       // Customize the behavior of the arrow button here
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginWithEmailPage()));
     } catch (e) {
+      String errorMessage = '';
+      switch (e.toString()) {
+        case '[firebase_auth/channel-error] Unable to establish connection on channel.':
+          errorMessage = 'Falha na recuperação da senha: insira o e-mail.';
+          break;
+        case '[firebase_auth/invalid-email] The email address is badly formatted.':
+          errorMessage = 'Falha na recuperação da senha: endereço de          e-mail mal formatado.';
+          break;
+      // Add more cases for other error messages if needed
+        default:
+          errorMessage = e.toString();
+      }
+
       // Handle password reset error, e.g., display an error message.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Falha na redefinição de senha: $e"),
+          content: Text(errorMessage),
         ),
       );
     }
@@ -49,17 +62,22 @@ class ResetPasswordPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Container(
+            margin: EdgeInsets.only(top: 150),
             height: MediaQuery.of(context).size.height,
             child: SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Image.asset('assets/logo.png'), // Add this line to display the image
+                  Image.asset(
+                    'assets/logo.png',
+                    width: 300, // Set a maximum width for the image
+                    height: 200,  // Set a maximum height for the image
+                  ),
                   TextField(
                     controller: emailController,
                     style: TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      labelText: 'Email',
+                      labelText: 'E-mail',
                       labelStyle: TextStyle(color: Colors.blue), // Set the label color to white
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Colors.white), // Set the underline color to white

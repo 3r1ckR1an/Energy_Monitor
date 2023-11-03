@@ -19,10 +19,28 @@ class LoginWithEmailPage extends StatelessWidget {
       // Navigate to the tcc() page after a successful login.
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Tcc()));
     } catch (e) {
+      String errorMessage = '';
+      switch (e.toString()) {
+        case '[firebase_auth/invalid-email] The email address is badly formatted.':
+          errorMessage = 'Falha no login: endereço de e-mail mal formatado.';
+          break;
+        case '[firebase_auth/channel-error] Unable to establish connection on channel.':
+          errorMessage = 'Falha no login: insira o e-mail e senha.';
+          break;
+        case '[firebase_auth/user-not-found] There is no user record corresponding to this identifier. The user may have been deleted.':
+          errorMessage = 'Falha no login: nenhum usuário encontrado com esse e-mail e senha.';
+          break;
+        case '[firebase_auth/wrong-password] The password is invalid or the user does not have a password.':
+          errorMessage = 'Falha no login: senha inválida.';
+          break;
+      // Add more cases for other error messages if needed
+        default:
+          errorMessage = e.toString();
+      }
       // Handle login error, e.g., display an error message.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Login failed: $e"),
+          content: Text(errorMessage),
         ),
       );
     }
@@ -47,12 +65,16 @@ class LoginWithEmailPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Image.asset('assets/logo.png', width: 550, height: 350),
+                  Image.asset(
+                    'assets/logo.png',
+                    width: 300, // Set a maximum width for the image
+                    height: 200,  // Set a maximum height for the image
+                  ),
                   TextField(
                     controller: emailController,
                     style: TextStyle(color: Colors.white), // Set the input text color to white
                     decoration: InputDecoration(
-                      labelText: 'Email',
+                      labelText: 'E-mail',
                       labelStyle: TextStyle(color: Colors.blue), // Set the label color to white
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Colors.white), // Set the underline color to white
@@ -67,7 +89,7 @@ class LoginWithEmailPage extends StatelessWidget {
                         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RegisterPage()));
                       },
                       child: Text(
-                        'Criar Conta',
+                        'Criar conta',
                         style: TextStyle(fontWeight: FontWeight.bold, color: Colors.yellow[300]),
                       ),
                     ),
@@ -95,7 +117,7 @@ class LoginWithEmailPage extends StatelessWidget {
                         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ResetPasswordPage()));
                       },
                       child: Text(
-                        'Esqueci minha Senha',
+                        'Esqueci minha senha',
                         style: TextStyle(fontWeight: FontWeight.bold, color: Colors.yellow[300]),
                       ),
                     ),
