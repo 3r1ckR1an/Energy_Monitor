@@ -124,7 +124,7 @@ double? consumoTotal(Map<String, double> values, DateTime? alterDataIni, DateTim
       }
     }
   }
-
+  print(total);
   // Limit the result to two decimal places
   return total != null ? double.parse((total / 1000).toStringAsFixed(3)) : null;
 }
@@ -136,11 +136,11 @@ double? consumoTotal(Map<String, double> values, DateTime? alterDataIni, DateTim
 List<String> formatador(List<String> dataHora, DateTime? alterDataIni, DateTime? alterDataFim) {
   List<String> formattedList = [];
 
-  DateFormat dateTimeFormat = DateFormat('dd/MM/yyyy HH:mm:ss'); // Updated format with '/' instead of '-'
+  DateFormat dateTimeFormat = DateFormat('dd/MM/yyyy HH:mm:ss'); // Atualiza o formato com '/' ao invés de '-'
 
   if ((alterDataIni != DateTime(1999, 1, 1)) && (alterDataFim != DateTime(1999, 1, 1))) {
     for (String dateTimeString in dataHora) {
-      // Custom parsing of date and time components
+
       List<String> components = dateTimeString.split('T');
       if (components.length == 2) {
         List<String> dateComponents = components[0].split('-');
@@ -157,7 +157,7 @@ List<String> formatador(List<String> dataHora, DateTime? alterDataIni, DateTime?
           DateTime dateTime = DateTime(year, month, day, hour, minute, second);
 
           if (dateTime.isAfter(alterDataIni!) && dateTime.isBefore(alterDataFim!)) {
-            String formattedDateTime = dateTimeFormat.format(dateTime); // Format date and time
+            String formattedDateTime = dateTimeFormat.format(dateTime); // Formata date e time
             formattedList.add('    $formattedDateTime');
           }
         }
@@ -165,9 +165,9 @@ List<String> formatador(List<String> dataHora, DateTime? alterDataIni, DateTime?
     }
   } else {
     for (String dateTimeString in dataHora) {
-      // Replace '-' with '/'
+      // Troca '-' por '/'
       String formattedDateTime = dateTimeString.replaceAll('-', '/');
-      // Replace 'T' with a space
+      // Troca 'T' por espaço
       formattedDateTime = formattedDateTime.replaceAll('T', '  ');
 
       formattedList.add('    $formattedDateTime');
@@ -249,7 +249,13 @@ List<TimeData> organizer(Map<String, double> values, DateTime? alterDataIni, Dat
       }
     }
   } else {
-    int startIndex = sortedKeys.length - 45;
+    int startIndex;
+
+    if (sortedKeys.length < 45){
+      startIndex = 0;
+    } else {
+      startIndex = sortedKeys.length - 45;
+    }
 
     for (int i = startIndex; i < sortedKeys.length; i++) {
       List<String> keyParts = sortedKeys[i].split('T');

@@ -71,8 +71,11 @@ flutter:
     - assets/logo.png
     - assets/gmail.png
     - assets/on2.png
-    - assets/bar.png
     - assets/AppBar2.png
+    - assets/logo_oficial.png
+    - assets/AppBar_oficial.png
+    - assets/on_oficial.png
+    - assets/off_oficial.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -26,12 +26,23 @@ class _TccState extends State<Tcc> {
   late double consumo = 0;
   double tarifa = 0.89;
   int limpou = 0;
-  String avatarImagePath = 'assets/on.png';
+  String avatarImagePath = 'assets/on_oficial.png';
 
   DateTime startDate = DateTime.now();
   late DateTime alterDataIni = DateTime(1999, 1, 1);
   DateTime endDate = DateTime.now();
   late DateTime alterDataFim = DateTime(1999, 1, 1);
+
+  void _onTabChanged(int index) {
+    if (index == 0) {
+      // Action for HOME tab
+      setState(() {});
+      // _calculateConsumoTotal();
+    } else if (index == 1) {
+      // Action for TABELA tab
+      _calculateConsumoTotal();
+    }
+  }
 
   @override
   void initState() {
@@ -76,7 +87,7 @@ class _TccState extends State<Tcc> {
               Container(
                 margin: EdgeInsets.only(left: 90.0),
                 child: Image.asset(
-                  'assets/AppBar2.png',
+                  'assets/AppBar_oficial.png',
                   width: 170,
                   height: 70,
                   fit: BoxFit.contain,
@@ -95,11 +106,12 @@ class _TccState extends State<Tcc> {
           centerTitle: true,
           backgroundColor: Colors.grey[850],
           elevation: 0,
-          bottom: const TabBar(
+          bottom: TabBar(
             tabs: [
               Tab(text: 'HOME'),
               Tab(text: 'TABELA'),
             ],
+            onTap: _onTabChanged,
           ),
         ),
         body: TabBarView(
@@ -129,7 +141,7 @@ class _TccState extends State<Tcc> {
                             "Led_Status": 'on',
                           });
                           setState(() {
-                            avatarImagePath = 'assets/on.png';
+                            avatarImagePath = 'assets/on_oficial.png';
                             isLigarEnabled = false;
                             isDesligarEnabled = true;
                           });
@@ -152,7 +164,7 @@ class _TccState extends State<Tcc> {
                             "Led_Status": 'off',
                           });
                           setState(() {
-                            avatarImagePath = 'assets/off.png';
+                            avatarImagePath = 'assets/off_oficial.png';
                             isLigarEnabled = true;
                             isDesligarEnabled = false;
                           });
@@ -183,27 +195,7 @@ class _TccState extends State<Tcc> {
                     ),
                   ),
                   const SizedBox(height: 5),
-                  FutureBuilder<DatabaseEvent>(
-                    future: ref.child('Power').once(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else if (!snapshot.hasData || snapshot.data == null) {
-                        return const Text('No data available');
-                      } else {
-                        DataSnapshot dataSnapshot = snapshot.data!.snapshot;
-
-                        var value = dataSnapshot.value;
-
-                        String data = value.toString();
-                        Map<String, double> sortedData = sortFirebaseDataByDateTime(data);
-                        consumo = consumoTotal(sortedData, alterDataIni, alterDataFim)!;
-                        return graph(organizer(sortedData, alterDataIni, alterDataFim));
-                      }
-                    },
-                  ),
+                  buildConsumptionGraph(),
                 ],
               ),
             ),
@@ -274,6 +266,30 @@ class _TccState extends State<Tcc> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildConsumptionGraph() {
+    return FutureBuilder<DatabaseEvent>(
+      future: ref.child('Power').once(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData || snapshot.data == null) {
+          return const Text('No data available');
+        } else {
+          DataSnapshot dataSnapshot = snapshot.data!.snapshot;
+
+          var value = dataSnapshot.value;
+
+          String data = value.toString();
+          Map<String, double> sortedData = sortFirebaseDataByDateTime(data);
+          consumo = consumoTotal(sortedData, alterDataIni, alterDataFim)!;
+          return graph(organizer(sortedData, alterDataIni, alterDataFim));
+        }
+      },
     );
   }
 
@@ -477,19 +493,21 @@ class _TccState extends State<Tcc> {
             },
           ),
           actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(newTarifa);
-                _calculateConsumoTotal();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, // Change the button color to your preference
-                foregroundColor: Colors.white, // Change the text color to your preference
-                minimumSize: Size(120, 40), // Adjust the button size as needed
+            Align(
+              alignment: Alignment.bottomCenter, // Center at the bottom
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(newTarifa);
+                  _calculateConsumoTotal();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // Change the button color to your preference
+                  foregroundColor: Colors.white, // Change the text color to your preference
+                  minimumSize: Size(120, 40), // Adjust the button size as needed
+                ),
+                child: Text('Salvar'),
               ),
-              child: Text('Salvar'),
             ),
-
           ],
         );
       },
@@ -501,6 +519,7 @@ class _TccState extends State<Tcc> {
       });
     }
   }
+
 
 
 }

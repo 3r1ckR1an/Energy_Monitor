@@ -52,7 +52,7 @@ class LoginPage extends StatelessWidget {
               Container(
                 margin: EdgeInsets.only(top: 150), // Add margin to move the logo down
                 child: Image.asset(
-                  'assets/logo.png',
+                  'assets/logo_oficial.png',
                   width: 300,
                   height: 300,
                 ),

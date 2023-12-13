@@ -66,7 +66,7 @@ class LoginWithEmailPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Image.asset(
-                    'assets/logo.png',
+                    'assets/logo_oficial.png',
                     width: 300, // Set a maximum width for the image
                     height: 200,  // Set a maximum height for the image
                   ),
